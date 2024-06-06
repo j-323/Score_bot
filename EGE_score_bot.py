@@ -45,7 +45,7 @@ class EGE_Score_Bot:
         self.application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.text_message))
         self.application.add_handler(CallbackQueryHandler(self.button))
 
-    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def start(self, update, context):
         keyboard = [
             ["Регистрация", "Ввод баллов"],
             ["Просмотр баллов", "Обновление баллов"],
@@ -58,15 +58,15 @@ class EGE_Score_Bot:
             reply_markup=reply_markup
         )
 
-    async def register(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def register(self, update, context):
         await update.message.reply_text("Введите ваше имя и фамилию через пробел. Пример: Иван Иванов")
         context.user_data["registering"] = True
 
-    async def enter_score(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def enter_score(self, update, context):
         await update.message.reply_text("Введите ваши баллы ЕГЭ в формате: предмет1 балл1, предмет2 балл2, ... Пример: Информатика 60, Математика 50")
         context.user_data["entering_scores"] = True
 
-    async def text_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def text_message(self, update, context):
         text = update.message.text.strip()
         
         if text in self.button_commands:
@@ -106,7 +106,7 @@ class EGE_Score_Bot:
                 "Для получения списка введите комманду - /help."
             )
 
-    async def view_scores(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def view_scores(self, update, context):
         name = update.message.chat.username
         student = self.students_collection.find_one({"name": name})
         if student and student.get("scores"):
@@ -118,16 +118,16 @@ class EGE_Score_Bot:
         else:
             await update.message.reply_text("Баллы не найдены или вы не зарегистрированы.")
 
-    async def delete_account(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def delete_account(self, update, context):
         name = update.message.chat.username
         self.students_collection.delete_one({"name": name})
         await update.message.reply_text("Ваш аккаунт и данные удалены.")
 
-    async def update_scores(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def update_scores(self, update, context):
         await update.message.reply_text("Введите новые баллы ЕГЭ в формате: редмет1 балл1, предмет2 балл2, ... Пример: Информатика 60, Математика 50")
         context.user_data["updating_scores"] = True
 
-    async def help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def help(self, update, context):
         help_message = (
             "Доступные команды:\n"
             "/start - Начать работу с ботом\n"
@@ -140,7 +140,7 @@ class EGE_Score_Bot:
         )
         await update.message.reply_text(help_message)
 
-    async def button(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    async def button(self, update, context):
         query = update.callback_query
         await query.answer()
         await query.edit_message_text(text=f"Вы выбрали: {query.data}")
